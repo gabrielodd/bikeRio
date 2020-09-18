@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Desafio 2</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+    crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+    integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+    crossorigin=""></script>
+
+</head>
+<body>
+    <header>
+        <div class="menu">
+            <div class="container">
+                <a href="#">
+                    <img src="imagens/bike-rio-logo.png" width="92.4" height="69.8">
+                </a>
+                <p class="menu-texto">
+                    Mapa das estações
+                </p>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div id="mapid"></div> <!-- Mapa do Rio  -->
+
+        <div class="container">
+            <form id="formulario">
+                <input name="input-endereco" placeholder="Insira a API aqui" type="text" id="input-endereco">
+                <!-- Exemplos de APIs 
+                https://nominatim.openstreetmap.org/search?street=Avenida%20Bartolomeu%20Mitre&city=Rio%20de%20Janeiro&format=json&polygon=1&addressdetails=1
+                https://nominatim.openstreetmap.org/search.php?q=cinel%C3%A2ndia%20rj&polygon_geojson=1&format=jsonv2
+                https://nominatim.openstreetmap.org/search.php?q=gustavo%20sampaio%20leme&polygon_geojson=1&format=jsonv2
+                -->
+                <input type="button" value="Procurar estações mais próximas" 
+                         id="botao" onclick="getEndereco();">
+            </form>
+            <p id="distancia0"></p>
+            <p id="distancia1"></p>
+            <p id="distancia2"></p>
+            <p id="distancia3"></p>
+            <p id="distancia4"></p>
+            <p id="distancia5"></p>
+            <p id="distancia6"></p>
+            <p id="distancia7"></p>
+            <p id="distancia8"></p>
+            <p id="distancia9"></p>
+            <p id="distancia10"></p>
+            <!-- <p id="distancia11-64"> para mostrar na página todas as distâncias </p> -->
+        </div>
+    </main>
+    <footer>
+        <div id="div-footer">
+            <div class="container">
+                <ul>
+                    <li><h2>FEITO POR</h2></li>
+                    <li>Gabriel Sena Oddone</li>
+                    <li>gabrieloddone@gmail.com</li>
+                    <li>(21) 99537-6288</li>
+                </ul>
+                <ul id="footer-right">
+                    <li><h2>COPYRIGHT</h2></li>
+                    <li><a href="https://nominatim.openstreetmap.org/ui/search.html">Nominatim Search Engine</a></li>
+                    <li><a href="https://leafletjs.com/">Leaflet</a></li>
+                    <li><a href="https://www.maptiler.com/copyright/">MapTiler</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+  <script>
+    var mymap = L.map('mapid').setView([-22.935, -43.25], 12); // Onde o mapa será iniciado
+
+    var usuarioLatLong= new Array(2); // Latitude e Longitude do usuário
+    var enderecos = []; // Matriz onde ficará guardado o endereço e distância dos bicicletários
+
+    var iconeUsuario = L.icon({ // Ícone do Usuário
+        iconUrl: 'imagens/marker-icon-2x-gold.png',
+        iconSize: [38, 72],
+        iconAnchor: [22, 71],
+        popupAnchor: [-3, -76]
+    });
+
+    // Atribuições: maptiler, leaflet e openstreetmap
+    const attribution = '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap</a> contributors'
+    const tileUrl = 'https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=SKKN8jj4FZWwlEzBapk4';
+    
+    const tiles = L.tileLayer(tileUrl, {attribution});
+    tiles.addTo(mymap); 
+
+    const api_bikeRio = 'http://dadosabertos.rio.rj.gov.br/apiTransporte/apresentacao/rest/index.cfm/estacoesBikeRio'
+    
+    function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) { // Fórmula de Haversine
+        var R = 6371; // Raio da Terra em km
+        var dLat = deg2rad(lat2-lat1);  
+        var dLon = deg2rad(lon2-lon1); 
+        var a = 
+            Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+            Math.sin(dLon/2) * Math.sin(dLon/2)
+            ; 
+        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+        var d = R * c; // Distância em km
+        return d.toFixed(2); // Retorna a distância em até 2 decimais
+    }
+
+    function deg2rad(deg) {
+        return deg * (Math.PI/180)
+    }
+
+    function printDistancias(enderecos){
+        enderecos.sort(ordenarDistancias);  
+        for(let i = 0; i<=enderecos.length; i++){
+            document.getElementById("distancia" + i).innerHTML = 
+            ("Bairro: " + enderecos[i][1] + 
+            " | Estação: " + enderecos[i][2] + 
+            " | Distância: " + enderecos[i][0] + " km");     
+        }
+    }
+
+    function ordenarDistancias(a, b){
+        return (a[0]-b[0]); 
+    }
+
+    async function getEndereco(){
+        enderecos.length = 0; // Esvaziar endereços
+        var api_endereco = document.getElementById("input-endereco").value;
+        const resposta = await fetch(api_endereco);
+        const enderecoUsuario = await resposta.json();
+
+        usuarioLatLong[0] = enderecoUsuario[0].lat;
+        usuarioLatLong[1] = enderecoUsuario[0].lon;
+
+        L.marker([usuarioLatLong[0], usuarioLatLong[1]], {icon: iconeUsuario}).addTo(mymap)
+        .bindPopup("Você está aqui").openPopup();
+
+        getEstacoesBikeRio();
+    }
+    
+    async function getEstacoesBikeRio(){
+        const resposta = await fetch(api_bikeRio);
+        const enderecoBikeRio = await resposta.json();
+
+        var i, latitude, longitude;
+
+        for (i in enderecoBikeRio.DATA) {
+
+            bairro = enderecoBikeRio.DATA[i][0];
+            estacao = enderecoBikeRio.DATA[i][1];
+            codigo = enderecoBikeRio.DATA[i][2];
+            endereco = enderecoBikeRio.DATA[i][3];
+            latitude = enderecoBikeRio.DATA[i][5];
+            longitude = enderecoBikeRio.DATA[i][6];
+
+            distancia= getDistanceFromLatLonInKm(usuarioLatLong[0],usuarioLatLong[1],latitude,longitude);
+
+            L.marker([latitude, longitude]).addTo(mymap).bindPopup   // Marcador do bicicletário
+                    (codigo + ": " + estacao + " à " + distancia + " km"); 
+            
+            enderecos.push([distancia, bairro, estacao, codigo, endereco]);
+
+        } 
+        printDistancias(enderecos); 
+    }
+  </script>
+
+</body>
+</html>
