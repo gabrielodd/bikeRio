@@ -24,7 +24,7 @@
                     <img src="imagens/bike-rio-logo.png" width="92.4" height="69.8">
                 </a>
                 <p class="menu-texto">
-                    Mapa das estações
+                    Estações
                 </p>
             </div>
         </div>
@@ -33,6 +33,7 @@
         <div id="mapid"></div> <!-- Mapa do Rio  -->
 
         <div class="container">
+            <p id="erro_api"></p>
             <form id="formulario">
                 <input name="input-endereco" placeholder="Insira a API aqui" type="text" id="input-endereco">
                 <!-- Exemplos de APIs 
@@ -97,6 +98,17 @@
     tiles.addTo(mymap); 
 
     const api_bikeRio = 'http://dadosabertos.rio.rj.gov.br/apiTransporte/apresentacao/rest/index.cfm/estacoesBikeRio'
+
+    async function bikeRio_response() {
+        try {
+            resposta = await fetch(api_bikeRio);
+            console.log("sucesso!")
+        } catch (error) {
+            document.getElementById("erro_api").innerHTML = "API das estações BikeRio indisponível. Tente novamente mais tarde!"
+        }
+    }
+
+    bikeRio_response();
     
     function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) { // Fórmula de Haversine
         var R = 6371; // Raio da Terra em km
