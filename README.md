@@ -1,4 +1,4 @@
-# Desafio 2 STI UFF
+# Bike Rio
 
 ## Descrição
 
