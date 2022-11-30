@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Desafio 2</title>
+    <title>Bike Rio</title>
 
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
@@ -14,6 +14,11 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
     integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
     crossorigin=""></script>
+
+    <!--
+    <link rel="stylesheet" href="https://maps.locationiq.com/v2/libs/leaflet-geocoder/1.9.6/leaflet-geocoder-locationiq.min.css">
+    <script src="https://maps.locationiq.com/v2/libs/leaflet-geocoder/1.9.6/leaflet-geocoder-locationiq.min.js"></script> 
+    -->
 
 </head>
 <body>
@@ -33,7 +38,9 @@
         <div id="mapid"></div> <!-- Mapa do Rio  -->
 
         <div class="container">
-            <p id="erro_api"></p>
+            <div id="div_erro" class="div-erro hidden">
+                <p id="erro_api">API das estações BikeRio indisponível. Tente novamente mais tarde!</p>
+            </div>
             <form id="formulario">
                 <input name="input-endereco" placeholder="Insira a API aqui" type="text" id="input-endereco">
                 <!-- Exemplos de APIs 
@@ -41,7 +48,7 @@
                 https://nominatim.openstreetmap.org/search.php?q=cinel%C3%A2ndia%20rj&polygon_geojson=1&format=jsonv2
                 https://nominatim.openstreetmap.org/search.php?q=gustavo%20sampaio%20leme&polygon_geojson=1&format=jsonv2
                 -->
-                <input type="button" value="Procurar estações mais próximas" 
+                <input type="button" value="Procurar" 
                          id="botao" onclick="getEndereco();">
             </form>
             <p id="distancia0"></p>
@@ -104,7 +111,7 @@
             resposta = await fetch(api_bikeRio);
             console.log("sucesso!")
         } catch (error) {
-            document.getElementById("erro_api").innerHTML = "API das estações BikeRio indisponível. Tente novamente mais tarde!"
+            document.getElementById("div_erro").classList.remove("hidden")
         }
     }
 
