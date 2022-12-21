@@ -1,5 +1,9 @@
 # Bike Rio
 
+## Visite em
+
+https://gabrielodd.github.io/bikeRio/
+
 ## Descrição
 
 Para utilizar o programa, o usuário deverá buscar qualquer local no [Nominatim Search Engine for OpenStreetMap](https://nominatim.openstreetmap.org/ui/search.html) e inserir o link do API que se encontra no topo da página, o programa retorna os bicicletários mais próximos em ordem decrescente de distância. O Ícone dourado mostra o local do usuário no mapa, e os Ícones azuis mostram os locais dos Bicicletários.
